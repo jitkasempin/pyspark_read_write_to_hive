@@ -19,8 +19,8 @@ def use_pip_modules(spark_context):
 
     hadoop_conf = spark_context._jsc.hadoopConfiguration()
     hadoop_conf.set("fs.s3n.impl", "org.apache.hadoop.fs.s3native.NativeS3FileSystem")
-    hadoop_conf.set("fs.s3n.awsAccessKeyId", "AKIAJCUQRJ3N3FKGD6EA")
-    hadoop_conf.set("fs.s3n.awsSecretAccessKey", "gZuVKWlJD1lCmIpF50YzNMV3XW1uznoGm4jQF7br")
+    hadoop_conf.set("fs.s3n.awsAccessKeyId", "your_aws_access_id")
+    hadoop_conf.set("fs.s3n.awsSecretAccessKey", "your_aws_access_key")
 
     sqlContext = SQLContext(spark_context)
 
