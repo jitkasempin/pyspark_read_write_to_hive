@@ -24,7 +24,7 @@ def use_pip_modules(spark_context):
     
     df.show()
 
-    df.write.format("jdbc").option("url","jdbc:mysql://jitkasem-mysql.cmmw1yeaonrt.us-east-1.rds.amazonaws.com:3306/jitkasem?user=jitkasem&password=jitkasem341").option("driver", "com.mysql.jdbc.Driver").option("dbtable", "eth_table").mode("overwrite").save()
+    df.write.format("jdbc").option("url","jdbc:mysql://jitkasem-mysql.cmmw1yeaonrt.us-east-1.rds.amazonaws.com:3306/jitkasem?user=jitkasem&password=to_your_password").option("driver", "com.mysql.jdbc.Driver").option("dbtable", "eth_table").mode("overwrite").save()
 
 
 if __name__ == '__main__': 
