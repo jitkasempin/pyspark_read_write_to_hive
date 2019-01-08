@@ -1,36 +1,84 @@
+from os.path import abspath, join
+
 from pyspark import SparkContext
 #import findspark
 from pyspark.sql import SQLContext
+#from pyspark.sql import
 from pyspark.sql import SparkSession
 from pyspark.sql.types import *
 # import configparser
 import argparse
 
-def use_pip_modules(spark_context):
+def use_pip_modules(spark_session):
 
-    hadoop_conf = spark_context._jsc.hadoopConfiguration()
-    hadoop_conf.set("fs.s3n.impl", "org.apache.hadoop.fs.s3native.NativeS3FileSystem")
-    hadoop_conf.set("fs.s3n.awsAccessKeyId", "your_aws_access_id")
-    hadoop_conf.set("fs.s3n.awsSecretAccessKey", "your_aws_access_key")
+    #hadoop_conf = spark_context._jsc.hadoopConfiguration()
+    #hadoop_conf.set("spark.hadoop.fs.s3a.impl", "org.apache.hadoop.fs.s3a.S3AFileSystem")
+    #hadoop_conf.set("spark.hadoop.fs.s3a.awsAccessKeyId", "AKIAIVJZJEHE4ATMTPJQ")
+    #hadoop_conf.set("spark.hadoop.fs.s3a.awsSecretAccessKey", "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")
+    #sqlContext = SQLContext(spark_context)
 
-    sqlContext = SQLContext(spark_context)
+    spark_session.sparkContext.setSystemProperty("hive.metastore.uris", "thrift://localhost:9083")
     
     schema = StructType([
-        StructField("ethPri",FloatType(),True),
-        StructField("timeRecord",StringType(),True)
+        StructField("SHOP_DATE",StringType(),True),
+        StructField("SHOP_HOUR",StringType(),True),
+        StructField("BASKET_ID",StringType(),True),
+        StructField("CUST_CODE",StringType(),True),
+        StructField("STORE_CODE",StringType(),True),
+        StructField("PROD_CODE",StringType(),True),
+        StructField("QUANTITY",IntegerType(),True),
+        StructField("SPEND",FloatType(),True)
     ])
 
-    df = sqlContext.read.json("s3n://bigdata-testing123/ethPrice_3.json", schema=schema)
+    #spark_session.sql("CREATE TABLE IF NOT EXISTS transactionals (basket_id STRING, cust_code STRING, store_code STRING, prod_code STRING, quantity INT, spend FLOAT) PARTITIONED BY (shop_date STRING, shop_hour STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY ','")
+    
+    spark_session.sql("CREATE TABLE IF NOT EXISTS datatest (SHOP_DATE STRING, SHOP_HOUR STRING, BASKET_ID STRING, CUST_CODE STRING, STORE_CODE STRING, PROD_CODE STRING, QUANTITY INT, SPEND FLOAT) STORED AS PARQUET")
+
+    df = spark_session.read.format("csv").option("header", "true").schema(schema).load("/home/ubuntu/the-test-poc/supermarket_data.csv")
     
     df.show()
 
-    df.write.format("jdbc").option("url","jdbc:mysql://jitkasem-mysql.cmmw1yeaonrt.us-east-1.rds.amazonaws.com:3306/jitkasem?user=jitkasem&password=to_your_password").option("driver", "com.mysql.jdbc.Driver").option("dbtable", "eth_table").mode("overwrite").save()
+    print(df.count())
+
+    full_removed = df.dropDuplicates()
+
+    # print(full_removed.count())
+
+    missing_removed = full_removed.na.drop()
+
+    print(missing_removed.count())
+
+    # create temporary view
+
+    missing_removed.createOrReplaceTempView("transaction_record")
+
+    final_datadf = spark_session.sql("SELECT SHOP_DATE, SHOP_HOUR, BASKET_ID, CUST_CODE, STORE_CODE, PROD_CODE, QUANTITY, SPEND FROM transaction_record")
+
+    #spark_session.sql("INSERT INTO TABLE dataraws PARTITION (STORE_CODE) SELECT SHOP_DATE, SHOP_HOUR, BASKET_ID, CUST_CODE, PROD_CODE, QUANTITY, SPEND, STORE_CODE FROM transaction_record")
+
+    final_datadf.cache()
+
+    final_datadf.write.mode("overwrite").insertInto("datatest")
+
+    spark_session.stop()
+
 
 
 if __name__ == '__main__': 
 
-    sc = SparkContext(appName="S3 Test")
+    warehouse_location = abspath('spark-warehouse')
 
-    use_pip_modules(sc)
+    spark = SparkSession \
+        .builder \
+        .appName("Simple") \
+        .config("spark.sql.warehouse.dir", warehouse_location) \
+        .enableHiveSupport() \
+        .config("hive.exec.dynamic.partition", "true") \
+        .config("hive.exec.dynamic.partition.mode", "nonstrict") \
+        .getOrCreate()
 
-    sc.stop()
+    #sc = SparkContext(appName="S3 Test")
+
+    use_pip_modules(spark)
+
+    #sc.stop()
