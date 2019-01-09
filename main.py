@@ -32,7 +32,7 @@ def use_pip_modules(spark_session):
 
     #spark_session.sql("CREATE TABLE IF NOT EXISTS transactionals (basket_id STRING, cust_code STRING, store_code STRING, prod_code STRING, quantity INT, spend FLOAT) PARTITIONED BY (shop_date STRING, shop_hour STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY ','")
     
-    spark_session.sql("CREATE TABLE IF NOT EXISTS datatest (DT STRING, SHOP_HOUR STRING, BASKET_ID STRING, CUST_CODE STRING, STORE_CODE STRING, PROD_CODE STRING, QUANTITY INT, SPEND FLOAT) STORED AS PARQUET")
+    spark_session.sql("CREATE TABLE IF NOT EXISTS finaldata (DT STRING, SHOP_HOUR STRING, BASKET_ID STRING, CUST_CODE STRING, STORE_CODE STRING, PROD_CODE STRING, QUANTITY INT, SPEND FLOAT, YY STRING, MM STRING, DD STRING) STORED AS PARQUET")
 
     df = spark_session.read.format("csv").option("header", "true").schema(schema).load("/home/ubuntu/the-test-poc/supermarket_data.csv")
     
@@ -64,7 +64,7 @@ def use_pip_modules(spark_session):
 
     final_datadf.cache()
 
-    final_datadf.write.mode("overwrite").insertInto("datatest")
+    final_datadf.write.mode("overwrite").insertInto("finaldata")
 
     spark_session.stop()
 
