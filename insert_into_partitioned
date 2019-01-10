@@ -1,13 +1,11 @@
 
 set hive.exec.dynamic.partition.mode=nonstrict;
 set hive.exec.dynamic.partition=true;
+set hive.exec.max.dynamic.partitions=1000;
+set hive.exec.max.dynamic.partitions.pernode=250;
 
 use default;
 
 insert into maindatahour partition (store_code, shop_hour) select DT,BASKET_ID,CUST_CODE,PROD_CODE,QUANTITY,SPEND,STORE_CODE,SHOP_HOUR from finaldata;
 
-
-
 insert into maindataday partition (store_code, shopping_day) select DT,BASKET_ID,CUST_CODE,PROD_CODE,QUANTITY,SPEND,STORE_CODE,DD from finaldata;
-
- 
