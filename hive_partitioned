@@ -4,34 +4,32 @@ set hive.exec.dynamic.partition=true;
 
 use default;
 
-
-
 CREATE EXTERNAL TABLE maindatahour 
 (
-  shop_date STRING, 
-  basket_id STRING, 
-  cust_code STRING,  
-  prod_code STRING, 
-  quantity INT, 
+  sh_da STRING, 
+  ba_id STRING, 
+  cu_co STRING,  
+  pr_co STRING, 
+  qua INT, 
   spend FLOAT
 )
-PARTITIONED BY (store_code STRING, shop_hour STRING)
-CLUSTERED BY (basket_id) INTO 4 BUCKETS
+PARTITIONED BY (sc STRING, sh STRING)
+CLUSTERED BY (ba_id) INTO 4 BUCKETS
 stored as orc
 LOCATION '/user/maindatahour/';  
 
 
 CREATE EXTERNAL TABLE maindataday 
 (
-  shop_date STRING, 
-  basket_id STRING, 
-  cust_code STRING,  
-  prod_code STRING, 
-  quantity INT, 
+  sh_da STRING, 
+  ba_id STRING, 
+  cu_co STRING,  
+  pr_co STRING, 
+  qua INT, 
   spend FLOAT
 )
-PARTITIONED BY (store_code STRING, shopping_day STRING)
-CLUSTERED BY (basket_id) INTO 4 BUCKETS
+PARTITIONED BY (sc STRING, sd STRING)
+CLUSTERED BY (ba_id) INTO 4 BUCKETS
 stored as orc
 LOCATION '/user/maindataday/';  
 
