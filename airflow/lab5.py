@@ -43,7 +43,7 @@ spark_task = BashOperator(
 load_to_hive = HiveOperator(
   hive_cli_conn_id = 'hive_cli_default',
   task_id = 'load_to_hive',
-  hql = 'SELECT BASKET_ID from finaldata',
+  hql = 'SELECT B_I from finaldata',
   dag = dag
 )
 
