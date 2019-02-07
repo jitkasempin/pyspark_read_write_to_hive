@@ -12,19 +12,19 @@ def use_pip_modules(spark_session):
     spark_session.sparkContext.setSystemProperty("hive.metastore.uris", "thrift://localhost:9083")
     
     schema = StructType([
-        StructField("SHOP_DATE",StringType(),True),
-        StructField("SHOP_HOUR",StringType(),True),
-        StructField("BASKET_ID",StringType(),True),
-        StructField("CUST_CODE",StringType(),True),
-        StructField("STORE_CODE",StringType(),True),
-        StructField("PROD_CODE",StringType(),True),
-        StructField("QUANTITY",IntegerType(),True),
+        StructField("S_D",StringType(),True),
+        StructField("S_H",StringType(),True),
+        StructField("B_I",StringType(),True),
+        StructField("C_C",StringType(),True),
+        StructField("S_C",StringType(),True),
+        StructField("P_C",StringType(),True),
+        StructField("Q",IntegerType(),True),
         StructField("SPEND",FloatType(),True)
     ])
     
-    spark_session.sql("CREATE TABLE IF NOT EXISTS finaldata (DT STRING, SHOP_HOUR STRING, BASKET_ID STRING, CUST_CODE STRING, STORE_CODE STRING, PROD_CODE STRING, QUANTITY INT, SPEND FLOAT, YY STRING, MM STRING, DD STRING) STORED AS PARQUET")
+    spark_session.sql("CREATE TABLE IF NOT EXISTS finaldata (DT STRING, S_H STRING, B_I STRING, C_C STRING, S_C STRING, P_C STRING, Q INT, SPEND FLOAT, YY STRING, MM STRING, DD STRING) STORED AS PARQUET")
 
-    df = spark_session.read.format("csv").option("header", "true").schema(schema).load("/home/ubuntu/the-test-poc/supermarket_data.csv")
+    df = spark_session.read.format("csv").option("header", "true").schema(schema).load("/home/ubuntu/the-test-poc/data.csv")
     
     df.show()
 
@@ -44,7 +44,7 @@ def use_pip_modules(spark_session):
 
     missing_removed.createOrReplaceTempView("transaction_record")
 
-    final_datadf = spark_session.sql("SELECT from_unixtime(unix_timestamp(SHOP_DATE,'yyyyMMdd'),'yyyy-MM-dd') AS DT, SHOP_HOUR, BASKET_ID, CUST_CODE, STORE_CODE, PROD_CODE, QUANTITY, SPEND FROM transaction_record")
+    final_datadf = spark_session.sql("SELECT from_unixtime(unix_timestamp(S_D,'yyyyMMdd'),'yyyy-MM-dd') AS DT, S_H, B_I, C_C, S_C, P_C, Q, SPEND FROM transaction_record")
 
     final_datadf = final_datadf.withColumn('YY', F.split(final_datadf['DT'], '-')[0])
     final_datadf = final_datadf.withColumn('MM', F.split(final_datadf['DT'], '-')[1])
