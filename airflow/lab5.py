@@ -34,7 +34,7 @@ dag = DAG('lab5',
 
 spark_task = BashOperator(
     task_id='spark_python',
-    bash_command='spark-submit --packages org.apache.hadoop:hadoop-aws:2.7.3 /home/ubuntu/pyspark_read_s3/main.py',
+    bash_command='/home/ubuntu/spark-2.3.1-bin-hadoop2.7/bin/spark-submit --packages org.apache.hadoop:hadoop-aws:2.7.3 /home/ubuntu/pyspark_read_s3/main.py',
     dag = dag
     )
     
